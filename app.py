@@ -1,31 +1,51 @@
 # app.py
-from flask import Flask, request, jsonify
-from modelos.libro import Libro
-from base_datos.gestor_json import GestorDB
+import os
+from flask import Flask, jsonify, request
+from dotenv import load_dotenv
 
+from base_datos import init_db, db   # IMPORTANTE: aquí traes db
+from base_datos.models import Usuario
+
+# 1. Cargar variables de entorno
+load_dotenv()
+
+# 2. Crear app
 app = Flask(__name__)
 
-# Instanciamos nuestra "Base de Datos" temporal
-db = GestorDB()
+# 3. Obtener variables del .env
+DB_USER = os.getenv('DB_USERNAME')
+DB_PASS = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
 
-@app.route('/api/libros', methods=['GET'])
-def get_libros():
-    """Angular pedirá esto para mostrar la lista de libros"""
-    lista_libros = db.obtener_todos()
-    return jsonify(lista_libros), 200
+# Debug (puedes quitar luego)
+print("DB_USER:", DB_USER)
+print("DB_HOST:", DB_HOST)
+print("DB_NAME:", DB_NAME)
 
-@app.route('/api/libros', methods=['POST'])
-def add_libro():
-    """Angular enviará un JSON aquí para registrar un libro"""
-    datos_recibidos = request.get_json()
-    
-    # 1. Usamos POO para procesar los datos
-    nuevo_libro = Libro.desde_angular(datos_recibidos)
-    
-    # 2. Guardamos usando nuestro Gestor
-    db.guardar_libro(nuevo_libro.para_json())
-    
-    return jsonify({"message": "Libro creado con éxito"}), 201
+# 4. Construir URI
+DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+print("DATABASE_URI:", DATABASE_URI)
+
+# 5. Configuración de SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# 6. Inicializar base de datos
+init_db(app)
+
+# ------------------ RUTAS ------------------
+
+# Ruta de prueba
+@app.route('/')
+def home():
+    return jsonify({
+        "mensaje": "Servidor activo",
+        "db": DB_NAME
+    })
+
+# ------------------ RUN ------------------
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

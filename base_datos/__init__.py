@@ -1,5 +1,16 @@
+#__init__.py
 from flask_sqlalchemy import SQLAlchemy
 
-# Creamos el objeto de la hase de datos. Todavia no se sabe a que app pertenece. 
-# Se identifica en el app.py con el metodo init_app()
 db = SQLAlchemy()
+
+def init_db(app):
+    db.init_app(app)
+
+    with app.app_context():
+        print("Inicializando BD...")  # DEBUG
+
+        from .models import Usuario, Categoria, Tarea
+
+        db.create_all()
+
+        print("Tablas creadas con éxito") # DEBUG
