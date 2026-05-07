@@ -9,8 +9,10 @@ def init_db(app):
     with app.app_context():
         print("Inicializando BD...")  # DEBUG
 
-        from .models import Usuario, Categoria, Tarea
-
+        from .models import Usuario, Cliente, Libro, Categoria, Prestamo
+        # Elimina toda la base de datos 
+        # db.drop_all()
+        # Crea todas las tablas nuevas
         db.create_all()
 
         print("Tablas creadas con éxito") # DEBUG
