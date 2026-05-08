@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 from base_datos import init_db, db   # IMPORTANTE: aquí traes db
 from base_datos.models import Usuario
+from routes.libro_routes import libros_bp
+
 
 # 1. Cargar variables de entorno
 load_dotenv()
@@ -34,6 +36,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 6. Inicializar base de datos
 init_db(app)
+
+#agregamos las rutas
+app.register_blueprint(libros_bp)
 
 # ------------------ RUTAS ------------------
 
